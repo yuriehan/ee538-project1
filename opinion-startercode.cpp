@@ -30,10 +30,10 @@ void build_adj_matrix()
     adj = vector<vector<int>>(total_nodes, vector<int>(total_nodes, 0));
 
     // (2) run through edge list and populate adj
-    for(vector<int>& edge : edge_list)
+    for(int i = 0; i < edge_list.size(); i++)
     {
-        int source = edge[0]; // eg 0 - left number in edge_list.txt
-        int target = edge[1]; // eg 1 - right number in edge_list.txt
+        int source = edge_list[i][0]; // eg 0 - left number in edge_list.txt
+        int target = edge_list[i][1]; // eg 1 - right number in edge_list.txt
         adj[source][target] = 1; //mark row 0, col 1 as connected
         adj[target][source] = 1; // mark row 1, col 0 as connected (goes both ways)
     }
@@ -43,9 +43,9 @@ double calculate_fraction_of_ones()
 {
     // (3) Calculate the fraction of nodes with opinion 1 and return it.
    int count = 0;
-   for(int opinion : opinions)
+   for(int i = 0; i < opinions.size(); i++)
    {
-       if(opinion == 1)
+       if(opinions[i] == 1)
        {
         count++;
        }
