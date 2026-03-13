@@ -34,8 +34,7 @@ void build_adj_matrix()
     {
         int source = edge_list[i][0]; // eg 0 - left number in edge_list.txt
         int target = edge_list[i][1]; // eg 1 - right number in edge_list.txt
-        adj[source][target] = 1; //mark row 0, col 1 as connected
-        adj[target][source] = 1; // mark row 1, col 0 as connected (goes both ways)
+        adj[source][target] = 1; // directed edge
     }
 }
 
@@ -62,7 +61,7 @@ int get_majority_friend_opinions(int node)
     int count_zeros = 0;
     for(int i = 0; i < total_nodes; i++)
     {
-        if(adj[node][i] == 1)
+        if(adj[i][node] == 1)
         {
             if(opinions[i] == 1)
             {
@@ -133,11 +132,8 @@ int main() {
         opinions_changed = update_opinions();
         iteration++;
  
-        if(iteration % 10 == 0 && iteration < max_iterations)
-        {
-            cout << "Iteration " << iteration << ": fraction of 1's = "
-                 << calculate_fraction_of_ones() << endl;
-        }
+        cout << "Iteration " << iteration << ": fraction of 1's = "
+        << calculate_fraction_of_ones() << endl;
     }
 
     ////////////////////////////////////////////////////////
