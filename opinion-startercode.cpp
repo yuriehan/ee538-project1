@@ -127,13 +127,26 @@ int main() {
     /// (6)  //////////////////////////////////////////////
     // Run until consensus or max iterations
     //while( ... )
-    while(opinions_changed && iteration < max_iterations)
+    while(iteration < max_iterations)
     {
         opinions_changed = update_opinions();
+
+        if(!opinions_changed)
+            break;
+
         iteration++;
- 
-        cout << "Iteration " << iteration << ": fraction of 1's = "
-        << calculate_fraction_of_ones() << endl;
+
+        bool next_change = false;
+        vector<int> temp = opinions;
+
+        next_change = update_opinions();
+        opinions = temp; // restore state
+
+        if(next_change)
+        {
+            cout << "Iteration " << iteration << ": fraction of 1's = "
+                << calculate_fraction_of_ones() << endl;
+        }
     }
 
     ////////////////////////////////////////////////////////
