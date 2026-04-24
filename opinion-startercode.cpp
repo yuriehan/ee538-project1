@@ -24,17 +24,17 @@ std::vector<std::vector<int>> adj;
 // edge list: each row contains {source, target}
 std::vector<std::vector<int>> edge_list;
 
-void build_adj_matrix()
+void build_adj_matrix() // actually a list
 {
     // (1) allocate matrix adj of appropriate size
-    adj = vector<vector<int>>(total_nodes, vector<int>(total_nodes, 0));
+    adj.assign(total_nodes, vector<int>());
 
     // (2) run through edge list and populate adj
-    for(int i = 0; i < edge_list.size(); i++)
+    for (int i = 0; i < (int)edge_list.size(); i++)
     {
-        int source = edge_list[i][0]; // eg 0 - left number in edge_list.txt
-        int target = edge_list[i][1]; // eg 1 - right number in edge_list.txt
-        adj[source][target] = 1; // directed edge
+        int source = edge_list[i][0];
+        int target = edge_list[i][1];
+        adj[target].push_back(source); // source -> target, source is neighbor of target
     }
 }
 
@@ -42,12 +42,9 @@ double calculate_fraction_of_ones()
 {
     // (3) Calculate the fraction of nodes with opinion 1 and return it.
    int count = 0;
-   for(int i = 0; i < opinions.size(); i++)
+   for(int opinion : opinions)
    {
-       if(opinions[i] == 1)
-       {
-        count++;
-       }
+       count += opinion;
    }
    return (double)count / (double)opinions.size();
 }
@@ -59,27 +56,21 @@ int get_majority_friend_opinions(int node)
     //If tie, return 0.
     int count_ones = 0;
     int count_zeros = 0;
-    for(int i = 0; i < total_nodes; i++)
+    for (int neighbor : adj[node]) // only iterates thru actual neighbors
     {
-        if(adj[i][node] == 1)
-        {
-            if(opinions[i] == 1)
-            {
-                count_ones++;
-            }
-            else
-            {
-                count_zeros++;
-            }
+        if (opinions[neighbor] == 1){
+            count_ones++;
+        }
+        else{
+            count_zeros++;
         }
     }
-    if(count_ones > count_zeros)
-    {
+    // Return majority, tie -> 0
+    if(count_ones > count_zeros){
         return 1;
     }
-    else
-    {
-        return 0; // tie -> 0
+    else{
+        return 0;
     }
 }
 
@@ -88,18 +79,16 @@ bool update_opinions()
 {
     // (5) For each node, calculate the majority opinion among its neighbours and update the node's opinion.
     // Return true if any node's opinion changed, false otherwise.
-    vector<int> new_opinions = opinions;
+    vector<int> new_opinions(total_nodes);
     bool changed = false;
-    for(int i = 0; i < total_nodes; i++)
+    for (int i = 0; i < total_nodes; i++)
     {
-        int majority = get_majority_friend_opinions(i);
-        if(majority != opinions[i])
-        {
-            new_opinions[i] = majority;
+        new_opinions[i] = get_majority_friend_opinions(i);
+        if (!changed && new_opinions[i] != opinions[i]){ // if not already flagged
             changed = true;
         }
     }
-    opinions = new_opinions;
+    opinions.swap(new_opinions); // https://www.geeksforgeeks.org/cpp/swap-in-cpp/
     return changed;
 }
 
@@ -127,26 +116,16 @@ int main() {
     /// (6)  //////////////////////////////////////////////
     // Run until consensus or max iterations
     //while( ... )
-    while(iteration < max_iterations)
+    while(iteration < max_iterations) // until no opinions change 
     {
         opinions_changed = update_opinions();
 
-        if(!opinions_changed)
-            break;
-
-        iteration++;
-
-        bool next_change = false;
-        vector<int> temp = opinions;
-
-        next_change = update_opinions();
-        opinions = temp; // restore state
-
-        if(next_change)
-        {
-            cout << "Iteration " << iteration << ": fraction of 1's = "
-                << calculate_fraction_of_ones() << endl;
+        if(!opinions_changed){
+            break; // exit immediately if no change
         }
+        iteration++;
+        cout << "Iteration " << iteration << ": fraction of 1's = "
+            << calculate_fraction_of_ones() << endl;
     }
 
     ////////////////////////////////////////////////////////
